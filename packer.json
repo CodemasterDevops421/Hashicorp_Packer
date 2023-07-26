@@ -1,0 +1,45 @@
+{
+  "builders": [{
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+    "region": "us-east-1",
+    "source_ami_filter": {
+      "filters": {
+        "virtualization-type": "hvm",
+        "name": "ubuntu/images/*ubuntu-xenial-16.04-amd64-server-*",
+        "root-device-type": "ebs"
+      },
+      "owners": ["099720109477"],
+      "most_recent": true
+    },
+    "instance_type": "t2.micro",
+    "ssh_username": "ubuntu",
+    "ami_name": "packer-example {{timestamp}}"
+  }],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sudo apt-get update",
+        "sudo apt-get install -y nginx php8.1-cli php8.1-common php8.1-mysql php8.1-zip php8.1-gd php8.1-mbstring php8.1-curl php8.1-xml php8.1-bcmath php8.1-fpm mysql-server",
+        "curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php",
+        "sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer",
+        "sudo apt-get install -y git",
+        "sudo apt-get install -y python3",
+        "sudo apt-get install -y ansible"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "lemp_setup.yml",
+      "destination": "/tmp/lemp_setup.yml"
+    },
+    {
+      "type": "file",
+      "source": "setup.sh",
+      "destination": "/tmp/setup.sh"
+    }
+  ]
+}
+
